@@ -2,3 +2,9 @@
 
 * { outline:0; box-sizing:border-box; }
 html { scroll-behavior:smooth; }
+
+th { text-transform:uppercase; }
+td { text-align:center; }
+tr th:nth-child(2), tr td:nth-child(2) { text-align:left; }
+
+canvas { max-width:100%; }
