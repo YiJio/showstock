@@ -10,6 +10,7 @@ import { DEFAULT_TICKERS } from '../constants';
 const FINNHUB_API_KEY = import.meta.env.VITE_FINNHUB_API_KEY;
 
 interface PinnedContextType {
+	loading: boolean;
 	stockRows: StockQuote[];
 	setStockRows: (rows: StockQuote[]) => void;
 	fetchTickers: (isNew: boolean) => void;
@@ -29,6 +30,7 @@ export function usePinned(): PinnedContextType {
 export const PinnedProvider = ({ children }: { children: React.ReactNode }) => {
 	// states
 	const [stockRows, setStockRows] = useState<StockQuote[]>([]);
+	const [loading, setLoading] = useState(false);
 
 	const fetchTickers = async (isNew: boolean) => {
 		try {
@@ -65,6 +67,7 @@ export const PinnedProvider = ({ children }: { children: React.ReactNode }) => {
 	}
 
 	useEffect(() => {
+		setLoading(true);
 		const storage = localStorage.getItem('pinned-stocks');
 		if (storage) {
 			const localStocks = JSON.parse(storage);
@@ -76,10 +79,13 @@ export const PinnedProvider = ({ children }: { children: React.ReactNode }) => {
 		} else {
 			fetchTickers(true);
 		}
+		setTimeout(() => {
+			setLoading(false);			
+		}, 750);
 	}, []);
 
 	return (
-		<PinnedContext.Provider value={{ stockRows, setStockRows, fetchTickers, updatePinnedRows }}>
+		<PinnedContext.Provider value={{ loading, stockRows, setStockRows, fetchTickers, updatePinnedRows }}>
 			{children}
 		</PinnedContext.Provider>
 	);

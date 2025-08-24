@@ -16,9 +16,10 @@ import { DEFAULT_TICKERS } from '../constants';
 interface StockCardProps {
 	ticker: string | null;
 	symbols: any[];
+	setDialogOpen: (open: boolean) => void;
 }
 
-export const StockCard = ({ ticker, symbols }: StockCardProps) => {
+export const StockCard = ({ ticker, symbols, setDialogOpen }: StockCardProps) => {
 	// hooks
 	const { stockRows, updatePinnedRows } = usePinned();
 	// states
@@ -53,6 +54,13 @@ export const StockCard = ({ ticker, symbols }: StockCardProps) => {
 		updatePinnedRows(temp);
 	}
 
+	const updateRenderPin = (symbol: string | undefined) => {
+		if (!symbol) return 'Pin to Watch Table';
+		const isPinned = getFromIndex(stockRows, 'symbol', symbol);
+		if (isPinned && isPinned.pinned) return 'Already pinned';
+		else return 'Pin to Watch Table';
+	}
+
 	useEffect(() => {
 		if (!ticker || !symbols) return;
 		const fetchData = async () => {
@@ -61,14 +69,18 @@ export const StockCard = ({ ticker, symbols }: StockCardProps) => {
 			const today = startOfDay(new Date());
 			const thirtyDaysAgo = subDays(today, 30);
 			const data = await getStockData(ticker, thirtyDaysAgo, today);
-			const stock = getFromIndex(symbols, 'symbol', ticker);
 			if (data) {
-				const isPinned = getFromIndex(stockRows, 'symbol', stock.symbol);
-				setStockQuote({ symbol: stock.symbol, name: stock.name, price: data.price, priceChange: data.priceChange, percentChange: data.percentChange, history: data.history, pinned: isPinned ? isPinned.pinned : false });
+				const stock = getFromIndex(symbols, 'symbol', ticker);
+				if (data) {
+					const isPinned = getFromIndex(stockRows, 'symbol', stock.symbol);
+					setStockQuote({ symbol: stock.symbol, name: stock.name, price: data.price, priceChange: data.priceChange, percentChange: data.percentChange, history: data.history, pinned: isPinned ? isPinned.pinned : false });
+				}
+				setTimeout(() => {
+					setIsLoading(false);
+				}, 750);
+			} else {
+				setDialogOpen(true);
 			}
-			setTimeout(() => {
-				setIsLoading(false);
-			}, 750);
 		}
 		if (ticker) fetchData();
 	}, [ticker, symbols]);
@@ -98,19 +110,24 @@ export const StockCard = ({ ticker, symbols }: StockCardProps) => {
 		<div className='w-full md:w-1/2 rounded-md border-2 border-gray-300 hover:shadow-lg'>
 			<div className='p-4 w-full'>
 				<div className='w-full flex justify-between'>
-					<div className='flex items-center gap-2'>
-						<img className='w-10 h-10 rounded-md' src={`https://assets.parqet.com/logos/symbol/${stockQuote?.symbol}?format=png`} />
+					<div className='flex gap-2 grow-1'>
+						{stockQuote ? (<img className='mt-1 w-10 h-10 rounded-md' src={`https://assets.parqet.com/logos/symbol/${stockQuote?.symbol}?format=png`} />) : (<Skeleton width='42px' height='42px' />)}
 						<div className='flex flex-col'>
 							<span className='text-xl font-bold'>{stockQuote?.symbol}</span>
 							<span className='text-gray-500 text-sm'>{stockQuote?.name}</span>
 						</div>
 					</div>
-					<button title='Pin to Table' className='flex items-center justify-center gap-1 py-1 px-2 h-full rounded-lg bg-gray-100 cursor-pointer transition-all hover:bg-gray-200 hover:transition-all' onClick={handlePin}>📌<small>{stockQuote?.pinned ? 'Already pinned' : 'Pin to Table'}</small></button>
+					<div className='w-[160px] flex justify-end items-start'>
+						<button title='Pin to Watch Table' className='flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-gray-100 cursor-pointer transition-all hover:bg-gray-200 hover:transition-all' onClick={handlePin}>
+							📌<small>{updateRenderPin(stockQuote?.symbol)}</small>
+						</button>
+					</div>
 				</div>
 				<div className='w-full my-2 flex flex-col'>
 					<big className='font-semibold text-2xl'>${stockQuote?.price}</big>
 					<p>
-						{stockQuote?.percentChange && (<span className={`${stockQuote.percentChange > 0 ? 'text-green-600' : 'text-red-600'}`}>${stockQuote.priceChange.toFixed(2)} ({stockQuote.percentChange.toFixed(2)}%)</span>)} Today
+						{stockQuote?.percentChange && (<span className={`${stockQuote.percentChange > 0 ? 'text-green-600' : 'text-red-600'}`}>
+							<b className='text-lg'>{stockQuote.percentChange > 0 ? '➚' : '➘'}</b> ${stockQuote.priceChange.toFixed(2)} ({stockQuote.percentChange.toFixed(2)}%)</span>)} Today
 					</p>
 				</div>
 				{stockQuote?.history && (<StockChart data={stockQuote.history} />)}

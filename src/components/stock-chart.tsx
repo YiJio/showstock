@@ -4,7 +4,6 @@ import 'chartjs-adapter-date-fns';
 import { Chart, TimeScale, LinearScale, PointElement, registerables } from 'chart.js';
 import { CandlestickController, CandlestickElement } from 'chartjs-chart-financial';
 import { Chart as ReactChart } from 'react-chartjs-2';
-import Skeleton from 'react-loading-skeleton';
 // types
 import { StockPoint } from '../types';
 
@@ -21,9 +20,6 @@ export const StockChart = ({ data }: StockChartProps) => {
 
 	return (
 		<div className='relative m-auto w-full'>
-			{!data ? (<>
-				<Skeleton className='h-[150px]' />
-			</>) : (
 			<ReactChart ref={chartRef} type='candlestick' data={{
 				datasets: [
 					{
@@ -78,7 +74,7 @@ export const StockChart = ({ data }: StockChartProps) => {
 						beginAtZero: false,
 						ticks: {
 							callback: function (value, index, ticks) {
-								return '$' + value;
+								return '$' + Number(value).toFixed(2);
 							}
 						},
 						grid: { display: false }
@@ -111,7 +107,7 @@ export const StockChart = ({ data }: StockChartProps) => {
 						}
 					},
 				}
-			}} />)}
+			}} />
 		</div>
 	);
 }

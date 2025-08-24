@@ -1,5 +1,11 @@
 # Changelog
 
+### 2025/08/24
+![v0.0.0](https://img.shields.io/badge/v0.0.0-green)
+* Fixed up some other minor details for responsiveness.
+* Added dialog box to alert users of API limit.
+* Added remaining skeleton loading states.
+
 ### 2025/08/23
 ![v0.0.0](https://img.shields.io/badge/v0.0.0-green)
 * Added simple responsiveness for screen sizes.

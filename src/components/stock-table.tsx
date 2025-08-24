@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { StockQuote } from '../types';
 // hooks
 import { usePinned } from '../contexts/pinned.context';
+import Skeleton from 'react-loading-skeleton';
 
 interface StockTableProps {
 	onClick: (symbol: string) => void;
@@ -11,7 +12,7 @@ interface StockTableProps {
 
 export const StockTable = ({ onClick }: StockTableProps) => {
 	// hooks
-	const { stockRows } = usePinned();
+	const { stockRows, loading } = usePinned();
 	// variables
 	const [updatedRows, setUpdatedRows] = useState<StockQuote[]>(stockRows);
 
@@ -20,14 +21,49 @@ export const StockTable = ({ onClick }: StockTableProps) => {
 	}
 
 	useEffect(() => {
-		if (stockRows) setUpdatedRows(stockRows);
+		if (stockRows) { setUpdatedRows(stockRows); }
 	}, [stockRows]);
+
+	if (loading) {
+		return (
+			<div className='w-full md:w-1/2 rounded-md border-2 border-gray-300 hover:shadow-lg'>
+				<div className='p-4 w-full'>
+					<table className='table-auto border-collapse border-transparent w-full text-sm'>
+						<thead className='hidden sm:table-row-group'>
+							<tr>
+								<th></th>
+								<th className='px-2 py-1'><Skeleton /></th>
+								<th className='px-2 py-1'><Skeleton /></th>
+								<th className='w-[10%] px-2 py-1'><Skeleton /></th>
+								<th className='w-[10%] px-2 py-1'><Skeleton /></th>
+							</tr>
+						</thead>
+						<tbody>
+							{new Array(10).fill('').map((_, i) => (<tr key={i} className='opacity-70'>
+								<td><Skeleton width='100%' /></td>
+								<td className='px-2 py-1 flex items-center gap-2'>
+									<Skeleton width='32px' height='32px' />
+									<div className='flex flex-col w-full'>
+										<Skeleton width='52px' />
+										<Skeleton width='100%' />
+									</div>
+								</td>
+								<td className='px-2 py-1'><Skeleton /></td>
+								<td className='px-2 py-1'><Skeleton /></td>
+								<td className='px-2 py-1'><Skeleton /></td>
+							</tr>))}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className='w-full md:w-1/2 rounded-md border-2 border-gray-300 hover:shadow-lg'>
 			<div className='p-4 w-full'>
 				<table className='table-auto border-collapse border-transparent w-full text-sm'>
-					<thead>
+					<thead className='hidden sm:table-row-group'>
 						<tr>
 							<th></th>
 							<th className='px-2 py-1 text-xs text-gray-500'>Symbol</th>

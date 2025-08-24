@@ -1,7 +1,7 @@
 # Show Stock
 (more shield badges here for completion of projects for the most part)
 
-PREVIEW: [link]()
+PREVIEW: [link](http://showstock.vercel.app/)
 
 ### Utilization
 * Framework: React + Vite
